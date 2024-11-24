@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TEST CLASS AHA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1 class="text-center text-2xl font-bold">TEST CLASS AHA</h1>
+    <table class="min-w-full border-collapse border border-blue-300 mt-5">
+        <thead>
+            <tr>
+                <th class="border border-gray-300 p-2">Hummingbird</th>
+                <th class="border border-gray-300 p-2">Posisi</th>
+                <th class="border border-gray-300 p-2">Fitness</th>
+                <th class="border border-gray-300 p-2">Best Position</th>
+                <th class="border border-gray-300 p-2">Best Fitness</th>
+            </tr>
+        </thead>
+        <tbody id="hummingbirdTableBody"></tbody>
+    </table>
+
+    <div class="mt-5 text-center">
+        <p id="gbestFitness" class="text-lg font-semibold">Gbest Fitness:</p>
+        <p id="gbestPosition" class="text-lg font-semibold">Gbest Position:</p>
+    </div>
+
+    <div class="text-center mt-5">
+        <button id="startButton" class="bg-blue-500 text-white px-4 py-2 rounded">Start Iteration</button>
+    </div>
+
+    <div class="mt-5">
+        <canvas id="fitnessChart" width="400" height="200"></canvas>
+    </div>
+
+    <script type="module">
+        import { Rosenbrock } from "./rosenbrock.js";
+        import { AHA } from "./aha.js";
+
+        const tableBody = document.getElementById('hummingbirdTableBody');
+        const gbestFitnessElement = document.getElementById('gbestFitness');
+        const gbestPositionElement = document.getElementById('gbestPosition');
+        const startButton = document.getElementById('startButton');
+        const fitnessChartCtx = document.getElementById('fitnessChart').getContext('2d');
+
+        const nHummingbirds = 7;
+        const aha = new AHA(nHummingbirds, 2, Rosenbrock);
+
+        let iteration = 0;
+        let gbestFitnessData = [];
+        let labels = [];
+
+        // Setup Chart.js
+        const fitnessChart = new Chart(fitnessChartCtx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Gbest Fitness',
+                    data: gbestFitnessData,
+                    borderColor: 'rgba(75,192,192,1)',
+                    fill: true,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Iteration'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Gbest Fitness'
+                        }
+                    }
+                }
+            }
+        });
+
+        function updateTable() {
+            tableBody.innerHTML = '';
+            aha.hummingbirds.forEach((hummingbird, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="border border-gray-300 p-2 text-center">${index + 1}</td>
+                    <td class="border border-gray-300 p-2 text-center">${hummingbird.position.map(p => p.toFixed(2)).join(', ')}</td>
+                    <td class="border border-gray-300 p-2 text-center">${hummingbird.fitness.toFixed(2)}</td>
+                    <td class="border border-gray-300 p-2 text-center">${hummingbird.bestPosition.map(bp => bp.toFixed(2)).join(', ')}</td>
+                    <td class="border border-gray-300 p-2 text-center">${hummingbird.bestFitness.toFixed(2)}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            gbestFitnessElement.textContent = `Gbest Fitness: ${aha.bestGlobalFitness.toFixed(2)}`;
+            gbestPositionElement.textContent = `Gbest Position: ${aha.bestGlobalPosition.map(gp => gp.toFixed(2)).join(', ')}`;
+        }
+
+        function runAHAIterations() {
+            const maxIterations = 20;
+            const interval = setInterval(() => {
+                if (iteration >= maxIterations) {
+                    clearInterval(interval);
+                } else {
+                    aha.mainAHA();
+                    updateTable();
+
+                    // Update chart
+                    labels.push(iteration);
+                    gbestFitnessData.push(aha.bestGlobalFitness);
+                    fitnessChart.update();
+
+                    iteration++;
+                }
+            }, 500);
+        }
+
+        startButton.addEventListener('click', runAHAIterations);
+    </script>
+</body>
+</html>
