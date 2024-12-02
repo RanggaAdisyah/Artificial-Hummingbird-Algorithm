@@ -1,4 +1,4 @@
-import { Hummingbird } from './hummingbird.js'; // Pastikan pathnya sesuai
+import { Hummingbird } from './hummingbird.js';
 
 class AHA {
     constructor(nHummingbirds, nDimensi, objFunction) {
