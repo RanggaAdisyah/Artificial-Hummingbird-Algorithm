@@ -8,7 +8,7 @@ class AHA {
         this.objFunction = objFunction;
         this.bestGlobalPosition = Array(nDimensi).fill(0);
         this.bestGlobalFitness = Infinity;
-        this.iterationData = [];  // Menyimpan data Gbest Fitness untuk grafik
+        this.iterationData = [];  
         this.initHummingbirds();
     }
 
@@ -62,7 +62,7 @@ class AHA {
         this.hummingbirds.forEach((hummingbird) => hummingbird.updateBest());
         this.updateGlobalBest();
         this.updatePosition();
-        this.iterationData.push(this.bestGlobalFitness);  // Menyimpan data Gbest Fitness per iterasi
+        this.iterationData.push(this.bestGlobalFitness); 
     }
 }
 
